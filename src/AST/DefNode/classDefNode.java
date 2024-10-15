@@ -4,11 +4,10 @@ import Util.scope.position;
 
 import java.util.ArrayList;
 
-import AST.ASTNode;
 import AST.ASTVisitor;
 import AST.StmtNode.suiteStmtNode;
 
-public class classDefNode extends ASTNode{
+public class classDefNode extends DefNode{
     public String name;
     public ArrayList<DefNode> Defs = new ArrayList<>();
     public suiteStmtNode constructor;

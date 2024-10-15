@@ -11,6 +11,7 @@ public class RootNode extends ASTNode{
 
     public RootNode(position pos) {
         super(pos);
+        
     }
 
     @Override

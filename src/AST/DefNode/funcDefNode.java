@@ -6,12 +6,11 @@ import Util.info.Typeinfo;
 import java.util.ArrayList;
 
 import AST.ASTVisitor;
-import AST.ExprNode.ExprNode;
 import AST.StmtNode.suiteStmtNode;
 
-public class funcDefNode extends ExprNode{
+public class funcDefNode extends DefNode{
     public String name;
-    public ArrayList<varDefsNode> parameter = new ArrayList<>();
+    public ArrayList<varDefsNode> args = new ArrayList<>();
     public Typeinfo type;
     public suiteStmtNode body = null;
     
@@ -22,7 +21,7 @@ public class funcDefNode extends ExprNode{
     }
 
     public int paramnumber(){
-        return parameter.size();
+        return args.size();
     }
 
     @Override

@@ -4,32 +4,41 @@ import AST.*;
 import AST.DefNode.*;
 import AST.ExprNode.*;
 import AST.StmtNode.*;
-import Util.info.Typeinfo;
 import Util.scope.globalScope;
-
-import java.util.HashMap;
+import Util.scope.builtin;
+import Util.info.*;
 
 public class SymbolCollector implements ASTVisitor {
     private globalScope gScope;
+
     public SymbolCollector(globalScope gScope) {
         this.gScope = gScope;
+        for (Funcinfo func : builtin.func)
+            this.gScope.addFunction(func.name, func, null);
     }
+
     @Override public void visit(RootNode it){
-        
+        for (DefNode cd : it.Defs) {
+            if (!(cd instanceof varDefNode))
+                cd.accept(this);
+        }
     }
 
     @Override public void visit(funcDefNode it){
-
+        this.gScope.addFunction(it.name, new Funcinfo(it), it.pos);
     }
+
     @Override public void visit(classDefNode it){
-
+        this.gScope.addClass(it.name, new Classinfo(it), it.pos);
     }
+
     @Override public void visit(varDefsNode it){
-
+        for (varDefNode vardef : it.Defs) {
+            this.gScope.defineVariable(vardef.name, it.type, vardef.pos);
+        }
     }
-    @Override public void visit(varDefNode it){
 
-    }
+    @Override public void visit(varDefNode it){}
 
     @Override public void visit(binaryOpExprNode it){}
     @Override public void visit(binaryCmpExprNode it){}

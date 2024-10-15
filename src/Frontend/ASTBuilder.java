@@ -9,7 +9,6 @@ import AST.ExprNode.leftExprNode.leftOpType;
 import AST.ExprNode.rightExprNode.rightOpType;
 import AST.ExprNode.binaryOpExprNode.binaryOpType;
 import AST.ExprNode.binaryCmpExprNode.binaryCmpType;
-import Util.error.*;
 import Util.info.*;
 import Util.scope.*;
 import Grammar.MxBaseVisitor;
@@ -23,10 +22,7 @@ import java.lang.Integer;
 
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
-    private globalScope gScope;
-    public ASTBuilder(globalScope gScope) {
-        this.gScope = gScope;
-    }
+    public ASTBuilder() {}
 
     Typeinfo intType, boolType;
 
@@ -60,7 +56,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override public ASTNode visitFuncDef(MxParser.FuncDefContext ctx){
         funcDefNode funcDef = new funcDefNode(new position(ctx), ctx.name.toString(), new Typeinfo(ctx.typename()));
         if (ctx.arglist() != null)
-            ctx.arglist().arg().forEach(cd -> funcDef.parameter.add((varDefsNode)visit(cd)));
+            ctx.arglist().arg().forEach(cd -> funcDef.args.add((varDefsNode)visit(cd)));
         funcDef.body = (suiteStmtNode)visit(ctx.body);
         return funcDef;
     }

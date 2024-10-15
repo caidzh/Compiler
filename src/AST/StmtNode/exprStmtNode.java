@@ -1,11 +1,10 @@
 package AST.StmtNode;
 
-import AST.ASTNode;
 import AST.ASTVisitor;
 import AST.ExprNode.ExprNode;
 import Util.scope.position;
 
-public class exprStmtNode extends ASTNode{
+public class exprStmtNode extends StmtNode{
     public ExprNode expr;
 
     public exprStmtNode(ExprNode expr,position pos) {

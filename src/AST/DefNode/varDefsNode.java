@@ -6,9 +6,8 @@ import Util.scope.position;
 import java.util.ArrayList;
 
 import AST.ASTVisitor;
-import AST.StmtNode.StmtNode;
 
-public class varDefsNode extends StmtNode{
+public class varDefsNode extends DefNode{
     public Typeinfo type;
     public ArrayList<varDefNode> Defs = new ArrayList<>();
     
