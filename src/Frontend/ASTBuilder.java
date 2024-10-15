@@ -1,19 +1,22 @@
 package Frontend;
 
 import AST.*;
+import AST.DefNode.*;
+import AST.ExprNode.*;
+import AST.StmtNode.*;
+import AST.StmtNode.jumpStmtNode.jumpType;
+import AST.ExprNode.leftExprNode.leftOpType;
+import AST.ExprNode.rightExprNode.rightOpType;
+import AST.ExprNode.binaryOpExprNode.binaryOpType;
+import AST.ExprNode.binaryCmpExprNode.binaryCmpType;
+import Util.error.*;
+import Util.info.*;
+import Util.scope.*;
 import Grammar.MxBaseVisitor;
 import Grammar.MxParser;
-import Util.Typeinfo;
-import Util.globalScope;
-import Util.position;
 import Util.error.semanticError;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import AST.binaryOpExprNode.binaryOpType;
-import AST.jumpStmtNode.jumpType;
-import AST.leftExprNode.leftOpType;
-import AST.rightExprNode.rightOpType;
-import AST.binaryCmpExprNode.binaryCmpType;
 
 import java.util.ArrayList;
 import java.lang.Integer;

@@ -1,5 +1,5 @@
 package Util.error;
-import Util.position;
+import Util.scope.position;
 
 abstract public class error extends RuntimeException {
     private position pos;

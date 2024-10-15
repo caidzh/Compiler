@@ -1,8 +1,11 @@
 package Frontend;
 
 import AST.*;
-import Util.Typeinfo;
-import Util.globalScope;
+import AST.DefNode.*;
+import AST.ExprNode.*;
+import AST.StmtNode.*;
+import Util.info.Typeinfo;
+import Util.scope.globalScope;
 
 import java.util.HashMap;
 

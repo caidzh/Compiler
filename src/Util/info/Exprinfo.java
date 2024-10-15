@@ -1,4 +1,6 @@
-package Util;
+package Util.info;
+
+import Util.scope.position;
 
 public class Exprinfo extends info{
     public Typeinfo type;

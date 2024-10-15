@@ -1,8 +1,8 @@
 import Grammar.MxLexer;
 import Grammar.MxParser;
-import Util.MxErrorListener;
+import Util.error.MxErrorListener;
 import Util.error.error;
-import Util.globalScope;
+import Util.scope.globalScope;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;

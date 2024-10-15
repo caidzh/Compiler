@@ -1,6 +1,7 @@
-package Util;
+package Util.info;
 
 import Grammar.MxParser;
+import Util.scope.position;
 
 public class Typeinfo extends info{
     public String type;

@@ -1,5 +1,5 @@
 package Util.error;
-import Util.position;
+import Util.scope.position;
 
 public class syntaxError extends error {
 

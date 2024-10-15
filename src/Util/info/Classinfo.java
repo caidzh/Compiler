@@ -1,6 +1,7 @@
-package Util;
+package Util.info;
 
 import java.util.HashMap;
+import Util.scope.position;
 
 import Grammar.MxParser;
 

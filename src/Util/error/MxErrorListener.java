@@ -1,4 +1,4 @@
-package Util.scope;
+package Util.error;
 
 import Util.error.syntaxError;
 import Util.scope.position;

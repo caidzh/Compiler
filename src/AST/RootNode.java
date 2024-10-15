@@ -1,8 +1,10 @@
 package AST;
 
-import Util.position;
+import Util.scope.position;
 
 import java.util.ArrayList;
+
+import AST.DefNode.DefNode;
 
 public class RootNode extends ASTNode{
     public ArrayList<DefNode> Defs = new ArrayList<>();
