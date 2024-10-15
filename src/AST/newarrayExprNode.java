@@ -1,16 +1,16 @@
 package AST;
 
-import Util.position;
-import Util.Type;
+import Util.info.Typeinfo;
+import Util.scope.position;
 
 import java.util.ArrayList;
 
 public class newarrayExprNode extends ExprNode{
-    public Type type;
+    public Typeinfo type;
     public arrayinitExprNode arrayinitial;
     public ArrayList<ExprNode> size = new ArrayList<>();
     
-    public newarrayExprNode(position pos, Type type){
+    public newarrayExprNode(position pos, Typeinfo type){
         super(pos);
         this.type=type;
     }

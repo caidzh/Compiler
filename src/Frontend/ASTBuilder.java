@@ -3,7 +3,7 @@ package Frontend;
 import AST.*;
 import Grammar.MxBaseVisitor;
 import Grammar.MxParser;
-import Util.Type;
+import Util.Typeinfo;
 import Util.globalScope;
 import Util.position;
 import Util.error.semanticError;
@@ -25,7 +25,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         this.gScope = gScope;
     }
 
-    Type intType, boolType;
+    Typeinfo intType, boolType;
 
     @Override public ASTNode visitProgram(MxParser.ProgramContext ctx) {
         RootNode root = new RootNode(new position(ctx));
@@ -48,14 +48,14 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitVarDef(MxParser.VarDefContext ctx) {
-        Type type = new Type(ctx.typename());
+        Typeinfo type = new Typeinfo(ctx.typename());
         ArrayList<varDefNode> Defs = new ArrayList<>();
         ctx.argvar().forEach(cd -> Defs.add((varDefNode)visit(cd)));
         return new varDefsNode(type, Defs, new position(ctx));
     }
 
     @Override public ASTNode visitFuncDef(MxParser.FuncDefContext ctx){
-        funcDefNode funcDef = new funcDefNode(new position(ctx), ctx.name.toString(), new Type(ctx.typename()));
+        funcDefNode funcDef = new funcDefNode(new position(ctx), ctx.name.toString(), new Typeinfo(ctx.typename()));
         if (ctx.arglist() != null)
             ctx.arglist().arg().forEach(cd -> funcDef.parameter.add((varDefsNode)visit(cd)));
         funcDef.body = (suiteStmtNode)visit(ctx.body);
@@ -63,7 +63,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitArg(MxParser.ArgContext ctx){
-        Type type = new Type(ctx.typename());
+        Typeinfo type = new Typeinfo(ctx.typename());
         ArrayList<varDefNode> Defs = new ArrayList<>();
         Defs.add((varDefNode)visit(ctx.argvar()));
         return new varDefsNode(type, Defs, new position(ctx));
@@ -143,7 +143,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitNewArrayExpr(MxParser.NewArrayExprContext ctx){
-        newarrayExprNode newarray=new newarrayExprNode(new position(ctx), new Type(ctx.type()));
+        newarrayExprNode newarray=new newarrayExprNode(new position(ctx), new Typeinfo(ctx.type()));
         newarray.arrayinitial=(arrayinitExprNode)visit(ctx.arrayinitial());
         ctx.array().forEach(cd -> newarray.size.add((ExprNode)visit(cd.expression())));
         return newarray;
@@ -156,7 +156,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitNewVarExpr(MxParser.NewVarExprContext ctx){
-        return new newvarExprNode(new position(ctx), new Type(ctx.type()));
+        return new newvarExprNode(new position(ctx), new Typeinfo(ctx.type()));
     }
 
     @Override public ASTNode visitMemberExpr(MxParser.MemberExprContext ctx){
@@ -165,7 +165,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override public ASTNode visitFuncExpr(MxParser.FuncExprContext ctx){
         funcExprNode func = new funcExprNode(new position(ctx), (ExprNode)visit(ctx.expression()));
-        ctx.expressionlist().expression().forEach(cd -> func.parameter.add((ExprNode)visit(cd)));
+        ctx.expressionlist().expression().forEach(cd -> func.args.add((ExprNode)visit(cd)));
         return func;
     }
 

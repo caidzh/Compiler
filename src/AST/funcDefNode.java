@@ -1,17 +1,17 @@
 package AST;
 
 import Util.position;
-import Util.Type;
+import Util.Typeinfo;
 
 import java.util.ArrayList;
 
 public class funcDefNode extends ExprNode{
     public String name;
     public ArrayList<varDefsNode> parameter = new ArrayList<>();
-    public Type type;
+    public Typeinfo type;
     public suiteStmtNode body = null;
     
-    public funcDefNode(position pos, String name, Type type){
+    public funcDefNode(position pos, String name, Typeinfo type){
         super(pos);
         this.name=name;
         this.type=type;

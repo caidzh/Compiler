@@ -1,10 +1,10 @@
 package AST;
 
-import Util.Type;
-import Util.position;
+import Util.info.Typeinfo;
+import Util.scope.position;
 
 public abstract class ExprNode extends ASTNode {
-    public Type type;
+    public Typeinfo type;
 
     public ExprNode(position pos) {
         super(pos);

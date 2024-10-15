@@ -1,13 +1,15 @@
-package Util;
+package Util.scope;
 
 // import MIR.register;
 import Util.error.semanticError;
 
 import java.util.HashMap;
 
+import Util.info.Typeinfo;
+
 public class Scope {
 
-    private HashMap<String, Type> members;
+    private HashMap<String, Typeinfo> members;
     // public HashMap<String, register> entities = new HashMap<>();
     private Scope parentScope;
 
@@ -21,7 +23,7 @@ public class Scope {
         return parentScope;
     }
 
-    public void defineVariable(String name, Type t, position pos) {
+    public void defineVariable(String name, Typeinfo t, position pos) {
         if (members.containsKey(name))
             throw new semanticError("Semantic Error: variable redefine", pos);
         members.put(name, t);
@@ -33,7 +35,7 @@ public class Scope {
             return parentScope.containsVariable(name, true);
         else return false;
     }
-    public Type getType(String name, boolean lookUpon) {
+    public Typeinfo getType(String name, boolean lookUpon) {
         if (members.containsKey(name)) return members.get(name);
         else if (parentScope != null && lookUpon)
             return parentScope.getType(name, true);

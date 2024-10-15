@@ -23,6 +23,21 @@
 hs_err_pid*
 
 .idea/
-/test.yx
+/test.mx
 /out/
 /output.s
+
+# VSCode
+.vscode/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+testcases/**
+bin/**
+test.mx
+
+# 忽略临时文件
+*.tmp
+*.log

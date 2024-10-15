@@ -1,12 +1,12 @@
 package AST;
 
-import Util.position;
-import Util.Type;
+import Util.info.Typeinfo;
+import Util.scope.position;
 
 public class newvarExprNode extends ExprNode{
-    public Type type;
+    public Typeinfo type;
     
-    public newvarExprNode(position pos, Type type){
+    public newvarExprNode(position pos, Typeinfo type){
         super(pos);
         this.type=type;
     }

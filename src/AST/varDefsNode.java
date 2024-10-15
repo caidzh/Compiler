@@ -1,15 +1,15 @@
 package AST;
 
-import Util.Type;
-import Util.position;
+import Util.info.Typeinfo;
+import Util.scope.position;
 
 import java.util.ArrayList;
 
 public class varDefsNode extends StmtNode{
-    public Type type;
+    public Typeinfo type;
     public ArrayList<varDefNode> Defs = new ArrayList<>();
     
-    public varDefsNode(Type type,ArrayList<varDefNode> Defs,position pos){
+    public varDefsNode(Typeinfo type,ArrayList<varDefNode> Defs,position pos){
         super(pos);
         this.type=type;
         this.Defs=Defs;
