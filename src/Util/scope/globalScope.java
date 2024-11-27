@@ -1,5 +1,6 @@
 package Util.scope;
 
+import Util.position;
 import Util.error.semanticError;
 
 import java.util.HashMap;
@@ -7,8 +8,8 @@ import java.util.HashMap;
 import Util.info.*;
 
 public class globalScope extends Scope {
-    private HashMap<String, Classinfo> classes = new HashMap<>();
-    private HashMap<String, Funcinfo> functions= new HashMap<>();
+    public HashMap<String, Classinfo> classes = new HashMap<>();
+    public HashMap<String, Funcinfo> functions= new HashMap<>();
 
     public globalScope(Scope parentScope) {
         super(parentScope);

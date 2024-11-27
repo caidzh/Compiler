@@ -1,8 +1,8 @@
 package AST.ExprNode;
 
 import AST.ASTVisitor;
+import Util.position;
 import Util.info.Typeinfo;
-import Util.scope.position;
 
 public class newvarExprNode extends ExprNode{
     public Typeinfo type;

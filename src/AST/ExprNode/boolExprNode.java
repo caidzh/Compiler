@@ -1,7 +1,7 @@
 package AST.ExprNode;
 
 import AST.ASTVisitor;
-import Util.scope.position;
+import Util.position;
 
 public class boolExprNode extends literalExprNode{
     public boolean val;

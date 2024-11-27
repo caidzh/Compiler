@@ -1,5 +1,6 @@
 package Util.scope;
 
+import Util.position;
 // import MIR.register;
 import Util.error.semanticError;
 
@@ -9,13 +10,12 @@ import Util.info.Typeinfo;
 
 public class Scope {
 
-    private HashMap<String, Typeinfo> members;
+    private HashMap<String, Typeinfo> members = new HashMap<>();
     // public HashMap<String, register> entities = new HashMap<>();
     private Scope parentScope;
 
 
     public Scope(Scope parentScope) {
-        members = new HashMap<>();
         this.parentScope = parentScope;
     }
 

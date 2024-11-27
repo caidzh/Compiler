@@ -1,11 +1,10 @@
 package AST.DefNode;
 
-import Util.scope.position;
-
 import java.util.ArrayList;
 
 import AST.ASTVisitor;
 import AST.StmtNode.suiteStmtNode;
+import Util.position;
 
 public class classDefNode extends DefNode{
     public String name;

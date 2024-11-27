@@ -6,7 +6,8 @@ import Util.scope.globalScope;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.semantics.SymbolCollector;
+import AST.*;
+import Frontend.*;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -29,7 +30,7 @@ public class main {
             MxGrammar.removeErrorListeners();
             MxGrammar.addErrorListener(new MxErrorListener());
             ParseTree parseTreeRoot = MxGrammar.program();
-            ASTBuilder astBuilder = new ASTBuilder(gScope);
+            ASTBuilder astBuilder = new ASTBuilder();
             ASTRoot = (RootNode)astBuilder.visit(parseTreeRoot);
             new SymbolCollector(gScope).visit(ASTRoot);
             new SemanticChecker(gScope).visit(ASTRoot);

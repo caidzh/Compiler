@@ -1,6 +1,6 @@
 package AST;
 
-import Util.scope.position;
+import Util.position;
 
 abstract public class ASTNode {
     public position pos;

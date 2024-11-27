@@ -3,9 +3,8 @@ package Util.info;
 import java.util.HashMap;
 
 import AST.DefNode.*;
-import Util.scope.position;
-
 import Grammar.MxParser;
+import Util.position;
 
 public class Classinfo extends info{
     public HashMap<String, Typeinfo> member = new HashMap<>();
@@ -26,6 +25,10 @@ public class Classinfo extends info{
                 this.Init((funcDefNode) def);
             }
         }
+    }
+
+    public Classinfo(Typeinfo it){
+        super(it.name,it.pos);
     }
 
     public void InitMember(MxParser.VarDefContext ctx){

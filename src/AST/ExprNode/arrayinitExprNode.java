@@ -1,10 +1,9 @@
 package AST.ExprNode;
 
-import Util.scope.position;
-
 import java.util.ArrayList;
 
 import AST.ASTVisitor;
+import Util.position;
 
 public class arrayinitExprNode extends ExprNode{
     public ArrayList<ExprNode> arrayinits = new ArrayList<>();

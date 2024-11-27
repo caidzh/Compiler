@@ -1,5 +1,5 @@
 package Util.info;
-import Util.scope.position;
+import Util.position;
 
 public class info {
     public position pos;

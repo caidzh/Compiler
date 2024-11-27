@@ -1,6 +1,6 @@
 package AST.DefNode;
 
-import Util.scope.position;
+import Util.position;
 import Util.info.Typeinfo;
 
 import java.util.ArrayList;

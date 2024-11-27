@@ -1,4 +1,4 @@
-package Util.scope;
+package Util;
 
 import Util.info.*;
 

@@ -1,7 +1,7 @@
 package AST.ExprNode;
 
 import AST.ASTVisitor;
-import Util.scope.position;
+import Util.position;
 
 public class binaryCmpExprNode extends ExprNode {
     public ExprNode lhs, rhs;

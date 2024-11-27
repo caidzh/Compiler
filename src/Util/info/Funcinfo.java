@@ -4,9 +4,8 @@ import java.util.ArrayList;
 
 import AST.DefNode.funcDefNode;
 import AST.DefNode.varDefsNode;
-import Util.scope.position;
-
 import Grammar.MxParser;
+import Util.position;
 
 public class Funcinfo extends info{
     public Typeinfo type;

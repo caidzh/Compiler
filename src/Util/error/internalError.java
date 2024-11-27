@@ -1,5 +1,5 @@
 package Util.error;
-import Util.scope.position;
+import Util.position;
 
 public class internalError extends error {
 

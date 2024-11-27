@@ -2,7 +2,7 @@ package AST.StmtNode;
 
 import AST.ASTVisitor;
 import AST.ExprNode.ExprNode;
-import Util.scope.position;
+import Util.position;
 
 public class pureExprStmtNode extends StmtNode{
     public ExprNode expr;

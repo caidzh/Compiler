@@ -3,7 +3,7 @@ package AST.ExprNode;
 import java.util.ArrayList;
 
 import AST.ASTVisitor;
-import Util.scope.position;
+import Util.position;
 
 public class funcExprNode extends ExprNode{
     public ExprNode name;

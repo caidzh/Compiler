@@ -1,7 +1,7 @@
 package AST.DefNode;
 
 import AST.ASTNode;
-import Util.scope.position;
+import Util.position;
 
 public abstract class DefNode extends ASTNode{
     // public Type type;

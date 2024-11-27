@@ -1,7 +1,7 @@
 package AST.ExprNode;
 
+import Util.position;
 import Util.info.Typeinfo;
-import Util.scope.position;
 
 import java.util.ArrayList;
 

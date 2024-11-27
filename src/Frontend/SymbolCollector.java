@@ -4,17 +4,19 @@ import AST.*;
 import AST.DefNode.*;
 import AST.ExprNode.*;
 import AST.StmtNode.*;
-import Util.scope.globalScope;
-import Util.scope.builtin;
+import Util.builtin;
 import Util.info.*;
+import Util.scope.*;
 
 public class SymbolCollector implements ASTVisitor {
     private globalScope gScope;
 
-    public SymbolCollector(globalScope gScope) {
+    public SymbolCollector(globalScope gScope){
         this.gScope = gScope;
         for (Funcinfo func : builtin.func)
             this.gScope.addFunction(func.name, func, null);
+        for (Typeinfo base : builtin.basetype)
+            this.gScope.addClass(base.name, new Classinfo(base), null);;
     }
 
     @Override public void visit(RootNode it){
@@ -33,13 +35,13 @@ public class SymbolCollector implements ASTVisitor {
     }
 
     @Override public void visit(varDefsNode it){
-        for (varDefNode vardef : it.Defs) {
+        for (varDefNode vardef : it.Defs)
             this.gScope.defineVariable(vardef.name, it.type, vardef.pos);
-        }
     }
 
     @Override public void visit(varDefNode it){}
 
+    @Override public void visit(ExprNode it){}
     @Override public void visit(binaryOpExprNode it){}
     @Override public void visit(binaryCmpExprNode it){}
     @Override public void visit(assignExprNode it){}

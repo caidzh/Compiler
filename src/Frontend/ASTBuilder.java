@@ -10,9 +10,9 @@ import AST.ExprNode.rightExprNode.rightOpType;
 import AST.ExprNode.binaryOpExprNode.binaryOpType;
 import AST.ExprNode.binaryCmpExprNode.binaryCmpType;
 import Util.info.*;
-import Util.scope.*;
 import Grammar.MxBaseVisitor;
 import Grammar.MxParser;
+import Util.position;
 import Util.error.semanticError;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -22,7 +22,9 @@ import java.lang.Integer;
 
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
-    public ASTBuilder() {}
+    public ASTBuilder(){
+
+    }
 
     Typeinfo intType, boolType;
 

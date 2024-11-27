@@ -1,17 +1,23 @@
 package AST.ExprNode;
 
 import AST.ASTNode;
-import Util.info.Typeinfo;
-import Util.scope.position;
+import AST.ASTVisitor;
+import Util.position;
+import Util.info.Exprinfo;
 
 public abstract class ExprNode extends ASTNode {
-    public Typeinfo type;
+    public Exprinfo exprinfo;
 
     public ExprNode(position pos) {
         super(pos);
     }
 
     public boolean isAssignable() {
-        return false;
+        return exprinfo.isLvalue;
+    }
+
+    @Override
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }
