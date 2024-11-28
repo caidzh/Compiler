@@ -117,14 +117,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitJumpStmt(MxParser.JumpStmtContext ctx){
-        ExprNode back = null;
-        if (ctx.expression() != null)
-            back = (ExprNode)visit(ctx.expression());
         jumpType jump = null;
         jump = ctx.Continue() != null ? jumpType.Continue : null;
         jump = ctx.Break() != null ? jumpType.Break : null;
-        jump = ctx.Return() != null ? jumpType.Return : null;
-        return new jumpStmtNode(back, jump, new position(ctx));
+        return new jumpStmtNode(jump, new position(ctx));
     }
 
     @Override public ASTNode visitPureExprStmt(MxParser.PureExprStmtContext ctx) {

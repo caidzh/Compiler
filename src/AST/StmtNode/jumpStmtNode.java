@@ -1,19 +1,16 @@
 package AST.StmtNode;
 
 import AST.ASTVisitor;
-import AST.ExprNode.ExprNode;
 import Util.position;
 
 public class jumpStmtNode extends StmtNode{
-    public ExprNode value;
     public enum jumpType {
-        Continue, Break, Return
+        Continue, Break
     }
     public jumpType opCode;
 
-    public jumpStmtNode(ExprNode value, jumpType opCode, position pos) {
+    public jumpStmtNode(jumpType opCode, position pos) {
         super(pos);
-        this.value = value;
         this.opCode = opCode;
     }
 

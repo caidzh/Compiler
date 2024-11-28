@@ -55,13 +55,13 @@ suite : '{' statement* '}';
 statement
     : suite # suiteStmt
     | varDef # varDefStmt
-    | If '(' cond=expression ')' thenstmt=statement (Else elsestmt=statement) # ifStmt
+    | If '(' cond=expression ')' thenstmt=statement (Else elsestmt=statement)? # ifStmt
     | Return expression? ';' # returnStmt
     | expression ';' # pureExprStmt
     | ';' # emptyStmt
     | For '(' init=statement cond=statement step=expression? ')' body=statement # forStmt
     | While '(' cond=expression ')' body=statement # whileStmt
-    | (Continue | Break | (Return expression?)) ';' # jumpStmt
+    | (Continue | Break) ';' # jumpStmt
     ;
 
 Add : '+';

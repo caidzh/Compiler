@@ -10,12 +10,12 @@ import AST.ExprNode.leftExprNode.leftOpType;
 import Util.error.semanticError;
 import Util.info.*;
 import Util.scope.*;
-import java.util.HashMap;
 
 public class SemanticChecker implements ASTVisitor {
     private globalScope gScope;
     private Scope scope;
-    public HashMap<String, ClassScope> classes;
+    private int loop = 0;
+    private boolean inClass = false;
 
     private void out() {
         scope = scope.parentScope();
@@ -57,6 +57,7 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(classDefNode it) {
+        inClass = true;
         scope = new ClassScope(scope);
         for (var cd : it.Defs) {
             if (cd instanceof varDefsNode) {
@@ -70,6 +71,7 @@ public class SemanticChecker implements ASTVisitor {
             if (cd instanceof funcDefNode)
                 cd.accept(this);
         it.constructor.accept(this);
+        inClass = false;
         out();
     }
 
@@ -269,16 +271,21 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(atomExprNode it) {
         if (it.str == "this") {
-            // TO BE DONE
+            if (!inClass)
+                throw new semanticError("this must be in ", it.pos);
         } else {
             if (gScope.functions.containsKey(it.str)) {
                 it.exprinfo.isFunc = true;
                 it.exprinfo.name = it.str;
             } else {
-                if (!scope.containsVariable(it.str, false))
-                    throw new semanticError("undefined class", it.pos);
+                if(scope.containsVariable(it.str, true)){
+                    Typeinfo type = scope.getType(it.str, true);
+                    it.exprinfo = new Exprinfo(it.pos, type, true, false);
+                }else{
+                    if (!gScope.classes.containsKey(it.str))
+                        throw new semanticError("undefined identifier", it.pos);
+                }
             }
-            // what is lookUpon means?
         }
     }
 
@@ -327,36 +334,87 @@ public class SemanticChecker implements ASTVisitor {
         it.condition.accept(this);
         if (!it.condition.exprinfo.isBool || it.condition.exprinfo.dim > 0)
             throw new semanticError("condition must be a boolean expression", it.pos);
-        // TO BE DONE
+        Scope s = scope;
+        scope = new Scope(s);
+        it.thenStmt.accept(this);
+        scope = new Scope(s);
+        if (it.elseStmt != null)
+            it.elseStmt.accept(this);
+        out();
     }
 
     @Override
     public void visit(forStmtNode it) {
+        if (it.condition != null){
+            it.condition.accept(this);
+            if (!it.condition.isexpr)
+                throw new semanticError("condition must be a boolean expression", it.pos);
+            if (!it.condition.exprinfo.isBool || it.condition.exprinfo.dim > 0)
+                throw new semanticError("condition must be a boolean expression", it.pos);
+        }
+        it.initStmt.accept(this);
+        if (it.step != null)
+            it.step.accept(this);
+        scope = new Scope(scope);
+        loop++;
+        it.bodyStmt.accept(this);
+        loop--;
+        out();
     }
 
     @Override
     public void visit(returnStmtNode it) {
+        if (!(scope instanceof FuncScope))
+            throw new semanticError("return statement must be in function", it.pos);
+        if (it.value!=null){
+            it.value.accept(this);
+            if(!it.value.exprinfo.type.equal(((FuncScope)scope).retType))
+                throw new semanticError("return type mismatch", it.pos);
+        }else{
+            if(((FuncScope)scope).retType.isVoid == false)
+                throw new semanticError("return type mismatch", it.pos);
+        }
     }
 
     @Override
     public void visit(suiteStmtNode it) {
+        scope = new Scope(scope);
         for (var cd : it.stmts)
             cd.accept(this);
+        out();
     }
 
     @Override
     public void visit(pureExprStmtNode it) {
+        it.isexpr = true;
+        it.expr.accept(this);
+        it.exprinfo = new Exprinfo(it.expr.exprinfo);
     }
 
     @Override
     public void visit(whileStmtNode it) {
+        if (it.condition == null)
+            throw new semanticError("missing condition", it.pos);
+        it.condition.accept(this);
+        if (!it.condition.exprinfo.isBool||it.condition.exprinfo.dim>0)
+            throw new semanticError("condition must be a boolean expression", it.pos);
+        scope = new Scope(scope);
+        loop++;
+        it.bodyStmt.accept(this);
+        loop--;
+        out();
     }
 
     @Override
     public void visit(jumpStmtNode it) {
+        if (loop==0)
+            throw new semanticError("jump must be in loop", it.pos);
     }
 
     @Override
     public void visit(exprStmtNode it) {
+        it.isexpr = true;
+        it.expr.accept(this);
+        it.exprinfo = new Exprinfo(it.expr.exprinfo);
     }
 }
