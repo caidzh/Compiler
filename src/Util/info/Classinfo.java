@@ -33,13 +33,13 @@ public class Classinfo extends info{
 
     public void InitMember(MxParser.VarDefContext ctx){
         Typeinfo type = new Typeinfo(ctx.typename());
-        ctx.argvar().forEach(cd -> this.member.put(cd.name.getText(),type));
+        ctx.argvar().forEach(cd -> this.member.put(cd.name.getText(),new Typeinfo(type)));
     }
 
     public void Init(varDefsNode it){
         Typeinfo type = it.type;
         for (varDefNode def : it.Defs)
-            this.member.put(def.name, type);
+            this.member.put(def.name, new Typeinfo(type));
     }
 
     public void Init(funcDefNode it){

@@ -14,6 +14,8 @@ public class Exprinfo extends Typeinfo {
         this.type = new Typeinfo(type);
         this.isLvalue = isLvalue;
         this.isFunc = isFunc;
+        this.isfromclass = isfromclass;
+        this.fromclass = fromclass;
     }
 
     public Exprinfo(Exprinfo rhs) {
@@ -21,5 +23,7 @@ public class Exprinfo extends Typeinfo {
         this.type = new Typeinfo(rhs.type);
         this.isLvalue = rhs.isLvalue;
         this.isFunc = rhs.isFunc;
+        this.isfromclass = rhs.isfromclass;
+        this.fromclass = rhs.fromclass;
     }
 }

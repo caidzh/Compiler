@@ -33,22 +33,22 @@ public class Typeinfo extends info {
     public Typeinfo(String type, position pos) {
         super("", pos);
         this.type = type;
-        this.isInt = (type == "int");
-        this.isBool = (type == "bool");
-        this.isString = (type == "string");
-        this.isNull = (type == "null");
-        this.isVoid = (type == "void");
+        this.isInt = (type.equals("int"));
+        this.isBool = (type.equals("bool"));
+        this.isString = (type.equals("string"));
+        this.isNull = (type.equals("null"));
+        this.isVoid = (type.equals("void"));
         this.dim = 0;
     }
 
     public Typeinfo(String type) {
         super("", null);
         this.type = type;
-        this.isInt = (type == "int");
-        this.isBool = (type == "bool");
-        this.isString = (type == "string");
-        this.isNull = (type == "null");
-        this.isVoid = (type == "void");
+        this.isInt = (type.equals("int"));
+        this.isBool = (type.equals("bool"));
+        this.isString = (type.equals("string"));
+        this.isNull = (type.equals("null"));
+        this.isVoid = (type.equals("void"));
         this.dim = 0;
     }
 

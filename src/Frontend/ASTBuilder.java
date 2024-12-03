@@ -47,7 +47,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         if (ctx.classConstruct().size() > 1)
             throw new semanticError("Number of classconstruct function is more than 1",
                     new position(ctx.classConstruct(0)));
-        if (ctx.classConstruct().size() > 0 && ctx.classConstruct(0).Identifier().toString() != classDef.name)
+        if (ctx.classConstruct().size() > 0 && !ctx.classConstruct(0).Identifier().getText().equals(classDef.name))
             throw new semanticError("classconstruct function name doesn't match class name",
                     new position(ctx.classConstruct(0)));
         if (ctx.classConstruct().size() > 0)
@@ -254,8 +254,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         biOp = ctx.BitOr() != null ? binaryOpType.BitOr : biOp;
         biOp = ctx.And() != null ? binaryOpType.And : biOp;
         biOp = ctx.Or() != null ? binaryOpType.Or : biOp;
-        if (biOp == null)
-            System.out.println("fuck");
+        biOp = ctx.LeftShift() != null ? binaryOpType.LeftShift : biOp;
+        biOp = ctx.RightShift() != null ? binaryOpType.RightShift : biOp;
         return new binaryOpExprNode(lhs, rhs, biOp, new position(ctx));
     }
 

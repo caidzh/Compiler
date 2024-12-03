@@ -19,16 +19,20 @@ public class Funcinfo extends info{
     
     public Funcinfo(String name, Typeinfo type, Typeinfo... args){
         super(name, null);
-        this.type = type;
+        this.type = new Typeinfo(type);
         for (Typeinfo arg : args) {
-            argtype.add(arg);
+            this.argtype.add(new Typeinfo(arg));
         }
     }
 
     public Funcinfo(funcDefNode it){
         super(it.name, it.pos);
-        this.type = it.type;
-        for (varDefsNode cd : it.args) 
-            argtype.add(cd.type);
+        // System.out.printf("%s\n",it.name);
+        this.type = new Typeinfo(it.type);
+        for (varDefsNode cd : it.args){
+            // System.out.printf("%s ",cd.type.type);
+            this.argtype.add(new Typeinfo(cd.type));
+        }
+        // System.out.println();
     }
 }

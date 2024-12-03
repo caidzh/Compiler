@@ -7,6 +7,8 @@ import Util.info.Exprinfo;
 
 public abstract class ExprNode extends ASTNode {
     public Exprinfo exprinfo;
+    public boolean searchfunc = false;
+    public boolean searchclass = false;
 
     public ExprNode(position pos) {
         super(pos);

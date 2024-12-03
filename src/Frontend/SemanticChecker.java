@@ -1,5 +1,7 @@
 package Frontend;
 
+import org.antlr.v4.parse.ANTLRParser.elementOptions_return;
+
 import AST.*;
 import AST.DefNode.*;
 import AST.ExprNode.*;
@@ -15,9 +17,11 @@ public class SemanticChecker implements ASTVisitor {
     private globalScope gScope;
     private Scope scope;
     private int loop = 0;
-    private boolean inClass = false;
+    private boolean isinClass = false;
+    private String inClass = null;
     private boolean inFunc = false;
     private boolean HasMain = false;
+    private Typeinfo retType = null;
 
     private void out() {
         scope = scope.parentScope();
@@ -41,12 +45,15 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(funcDefNode it) {
         inFunc = true;
         scope = new FuncScope(scope, it.type);
+        retType = new Typeinfo(it.type);
+        if (!gScope.classes.containsKey(it.type.type))
+            throw new semanticError("undefined type", it.pos);
         if (it.name.equals("main")) {
             HasMain = true;
             if (!it.type.isInt)
                 throw new semanticError("main function should return an int expression", it.pos);
             if (it.args.size() > 0)
-                throw new semanticError("number of main function's arguments > 0", null);
+                throw new semanticError("number of main function's arguments > 0", it.pos);
         }
         for (var cd : it.args) {
             // varDefNode var = cd.Defs.get(0);
@@ -60,7 +67,8 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(classDefNode it) {
-        inClass = true;
+        isinClass = true;
+        inClass = it.name;
         scope = new ClassScope(scope);
         for (var cd : it.Defs) {
             if (cd instanceof varDefsNode) {
@@ -71,11 +79,18 @@ public class SemanticChecker implements ASTVisitor {
             }
         }
         for (var cd : it.Defs)
-            if (cd instanceof funcDefNode)
+            if (cd instanceof funcDefNode) {
+                if (((funcDefNode) cd).name.equals(it.name))
+                    throw new semanticError("Constructor Type Error", it.pos);
                 cd.accept(this);
-        if (it.constructor != null)
+            }
+        if (it.constructor != null) {
+            inFunc = true;
+            retType = new Typeinfo("void");
             it.constructor.accept(this);
-        inClass = false;
+            inFunc = false;
+        }
+        isinClass = false;
         out();
     }
 
@@ -147,8 +162,19 @@ public class SemanticChecker implements ASTVisitor {
                 if (it.lhs.exprinfo.type.dim == 0 && !it.lhs.exprinfo.isNull && it.rhs.exprinfo.type.dim > 0)
                     throw new semanticError("binary compare error", it.pos);
             } else {
-                if (!it.lhs.exprinfo.type.equal(it.rhs.exprinfo.type))
-                    throw new semanticError("binary compare error", it.pos);
+                if (!it.lhs.exprinfo.type.isNull && !it.rhs.exprinfo.type.isNull) {
+                    if (!it.lhs.exprinfo.type.equal(it.rhs.exprinfo.type))
+                        throw new semanticError("binary compare error", it.pos);
+                } else {
+                    if (it.lhs.exprinfo.type.isNull) {
+                        if (it.rhs.exprinfo.type.isBasic() && it.rhs.exprinfo.type.dim == 0)
+                            throw new semanticError("binary compare error", it.pos);
+                    }
+                    if (it.rhs.exprinfo.type.isNull) {
+                        if (it.lhs.exprinfo.type.isBasic() && it.lhs.exprinfo.type.dim == 0)
+                            throw new semanticError("binary compare error", it.pos);
+                    }
+                }
             }
         } else {
             // System.out.printf("%s %d %s
@@ -207,7 +233,7 @@ public class SemanticChecker implements ASTVisitor {
                 throw new semanticError("array initial value type mismatch", it.pos);
         }
         it.exprinfo = new Exprinfo(info);
-        it.exprinfo.dim++;
+        it.exprinfo.type.dim += 1;
     }
 
     @Override
@@ -215,10 +241,12 @@ public class SemanticChecker implements ASTVisitor {
         if (!gScope.classes.containsKey(it.type.type))
             throw new semanticError("undefined type", it.pos);
         it.exprinfo = new Exprinfo(it.type.pos, it.type, true, false, false, "");
-        it.exprinfo.dim = it.getdim();
+        it.exprinfo.type.dim = it.getdim();
         if (it.arrayinitial != null) {
             it.arrayinitial.accept(this);
-            if (it.arrayinitial.exprinfo.dim != it.exprinfo.dim - 1)
+            // System.out.printf("%s %d %s
+            // %d",it.exprinfo.type.type,it.exprinfo.type.dim,it.arrayinitial.exprinfo.type.type,it.arrayinitial.exprinfo.type.dim);
+            if (it.arrayinitial.exprinfo.type.dim != it.exprinfo.type.dim)
                 throw new semanticError("array initial dimension error", it.pos);
         }
         boolean prefix = true;
@@ -228,7 +256,7 @@ public class SemanticChecker implements ASTVisitor {
                     throw new semanticError("the shape of multidimensional array must be specified from left to right",
                             it.pos);
                 cd.accept(this);
-                if (!cd.exprinfo.isInt || cd.exprinfo.dim > 0)
+                if (!cd.exprinfo.type.isInt || cd.exprinfo.type.dim > 0)
                     throw new semanticError("initial size should be an integer", it.pos);
             } else
                 prefix = false;
@@ -242,64 +270,125 @@ public class SemanticChecker implements ASTVisitor {
         if (it.type.isVoid)
             throw new semanticError("new expression cannot apply to void", it.pos);
         Classinfo value = gScope.classes.get(it.type.type);
-        it.exprinfo = new Exprinfo(it.pos, new Typeinfo(value.name), false, false, false, "");
+        if (it.type.isBasic())
+            it.exprinfo = new Exprinfo(it.pos, new Typeinfo(value.name), true, false, false, "");
+        else
+            it.exprinfo = new Exprinfo(it.pos, new Typeinfo(value.name), true, false, true, value.name);
     }
 
     @Override
     public void visit(memberExprNode it) {
+        it.name.searchclass = true;
         it.name.accept(this);
-        if (it.Identifier.equals("size")
-                && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
-            if (it.name.exprinfo.type.dim == 0)
-                throw new semanticError("the member should be an array", it.pos);
-            Typeinfo type = new Typeinfo("int");
-            it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
-            it.exprinfo.name = "size";
-        } else if (it.Identifier.equals("length")
-                && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
-            if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
-                throw new semanticError("the member should be a string", it.pos);
-            Typeinfo type = new Typeinfo("int");
-            it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
-            it.exprinfo.name = "length";
-        } else if (it.Identifier.equals("substring")
-                && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
-            if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
-                throw new semanticError("the member should be a string", it.pos);
-            Typeinfo type = new Typeinfo("string");
-            it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
-            it.exprinfo.name = "substring";
-        } else if (it.Identifier.equals("parseInt")
-                && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
-            if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
-                throw new semanticError("the member should be a string", it.pos);
-            Typeinfo type = new Typeinfo("int");
-            it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
-            it.exprinfo.name = "parseInt";
-        } else if (it.Identifier.equals("ord")
-                && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
-            if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
-                throw new semanticError("the member should be a string", it.pos);
-            Typeinfo type = new Typeinfo("int");
-            it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
-            it.exprinfo.name = "ord";
+        if (it.searchfunc) {
+            // System.out.printf("%s %s\n",it.name.exprinfo.fromclass,it.Identifier);
+            if (isinClass && gScope.classes.get(inClass).function.get(it.Identifier) != null) {
+                Typeinfo type = gScope.classes.get(inClass).function.get(it.Identifier).type;
+                it.exprinfo = new Exprinfo(it.pos, new Typeinfo(type), false, true, true, inClass);
+                it.exprinfo.name = it.Identifier;
+            } else if (gScope.classes.get(it.name.exprinfo.type.type) != null
+                    && gScope.classes.get(it.name.exprinfo.type.type).function.get(it.Identifier) != null) {
+                Typeinfo type = gScope.classes.get(it.name.exprinfo.type.type).function.get(it.Identifier).type;
+                it.exprinfo = new Exprinfo(it.pos, new Typeinfo(type), false, true, true, it.name.exprinfo.type.type);
+                it.exprinfo.name = it.Identifier;
+            } else if (gScope.functions.containsKey(it.Identifier)) {
+                if (it.Identifier.equals("size")
+                        && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                    if (it.name.exprinfo.type.dim == 0)
+                        throw new semanticError("the member should be an array", it.pos);
+                    Typeinfo type = new Typeinfo("int");
+                    it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                    it.exprinfo.name = "size";
+                } else if (it.Identifier.equals("length")
+                        && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                    if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
+                        throw new semanticError("the member should be a string", it.pos);
+                    Typeinfo type = new Typeinfo("int");
+                    it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                    it.exprinfo.name = "length";
+                } else if (it.Identifier.equals("substring")
+                        && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                    if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
+                        throw new semanticError("the member should be a string", it.pos);
+                    Typeinfo type = new Typeinfo("string");
+                    it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                    it.exprinfo.name = "substring";
+                } else if (it.Identifier.equals("parseInt")
+                        && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                    if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
+                        throw new semanticError("the member should be a string", it.pos);
+                    Typeinfo type = new Typeinfo("int");
+                    it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                    it.exprinfo.name = "parseInt";
+                } else if (it.Identifier.equals("ord")
+                        && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                    if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
+                        throw new semanticError("the member should be a string", it.pos);
+                    Typeinfo type = new Typeinfo("int");
+                    it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                    it.exprinfo.name = "ord";
+                }
+                // Typeinfo type = gScope.functions.get(it.Identifier).type;
+                // it.exprinfo = new Exprinfo(it.pos, new Typeinfo(type), false, true, false,
+                // "");
+                // it.exprinfo.name = it.Identifier;
+            } else
+                throw new semanticError("undefined function", it.pos);
         } else {
-            if (it.name.exprinfo.dim > 0)
-                throw new semanticError("the member should be a variable", it.pos);
-            if (it.name.exprinfo.isBasic())
-                throw new semanticError("basic type does not contain member", it.pos);
-            if (!gScope.classes.containsKey(it.name.exprinfo.type.type))
-                throw new semanticError("undefined class", it.pos);
-            if (gScope.classes.get(it.name.exprinfo.type.type).member.containsKey(it.Identifier)) {
-                Typeinfo type = gScope.classes.get(it.name.exprinfo.type.type).member.get(it.Identifier);
-                it.exprinfo = new Exprinfo(it.pos, type, true, false, true, it.name.exprinfo.type.type);
+            if (it.Identifier.equals("size")
+                    && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                if (it.name.exprinfo.type.dim == 0)
+                    throw new semanticError("the member should be an array", it.pos);
+                Typeinfo type = new Typeinfo("int");
+                it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                it.exprinfo.name = "size";
+            } else if (it.Identifier.equals("length")
+                    && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
+                    throw new semanticError("the member should be a string", it.pos);
+                Typeinfo type = new Typeinfo("int");
+                it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                it.exprinfo.name = "length";
+            } else if (it.Identifier.equals("substring")
+                    && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
+                    throw new semanticError("the member should be a string", it.pos);
+                Typeinfo type = new Typeinfo("string");
+                it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                it.exprinfo.name = "substring";
+            } else if (it.Identifier.equals("parseInt")
+                    && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
+                    throw new semanticError("the member should be a string", it.pos);
+                Typeinfo type = new Typeinfo("int");
+                it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                it.exprinfo.name = "parseInt";
+            } else if (it.Identifier.equals("ord")
+                    && !gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                if (it.name.exprinfo.type.dim > 0 || !it.name.exprinfo.type.isString)
+                    throw new semanticError("the member should be a string", it.pos);
+                Typeinfo type = new Typeinfo("int");
+                it.exprinfo = new Exprinfo(it.pos, type, false, true, false, "");
+                it.exprinfo.name = "ord";
             } else {
-                if (gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
-                    Typeinfo type = gScope.classes.get(it.name.exprinfo.type.type).function.get(it.Identifier).type;
-                    it.exprinfo = new Exprinfo(it.pos, type, false, true, true, it.name.exprinfo.type.type);
-                    it.exprinfo.name = it.Identifier;
-                } else
-                    throw new semanticError("undefined member", it.pos);
+                if (it.name.exprinfo.dim > 0)
+                    throw new semanticError("the member should be a variable", it.pos);
+                if (it.name.exprinfo.isBasic())
+                    throw new semanticError("basic type does not contain member", it.pos);
+                if (!gScope.classes.containsKey(it.name.exprinfo.type.type))
+                    throw new semanticError("undefined class", it.pos);
+                if (gScope.classes.get(it.name.exprinfo.type.type).member.containsKey(it.Identifier)) {
+                    Typeinfo type = gScope.classes.get(it.name.exprinfo.type.type).member.get(it.Identifier);
+                    // System.out.printf("%s -> %s\n",it.name.exprinfo.type.type,type.type);
+                    it.exprinfo = new Exprinfo(it.pos, type, true, false, true, it.name.exprinfo.type.type);
+                } else {
+                    if (gScope.classes.get(it.name.exprinfo.type.type).function.containsKey(it.Identifier)) {
+                        Typeinfo type = gScope.classes.get(it.name.exprinfo.type.type).function.get(it.Identifier).type;
+                        it.exprinfo = new Exprinfo(it.pos, type, false, true, true, it.name.exprinfo.type.type);
+                        it.exprinfo.name = it.Identifier;
+                    } else
+                        throw new semanticError("undefined member", it.pos);
+                }
             }
         }
     }
@@ -309,11 +398,10 @@ public class SemanticChecker implements ASTVisitor {
         it.lhs.accept(this);
         if (!it.lhs.exprinfo.isLvalue)
             throw new semanticError("only lvalue can perform INC/DEC operation", it.pos);
-        if (it.lhs.exprinfo.type.isInt && it.lhs.exprinfo.type.dim == 0){
+        if (it.lhs.exprinfo.type.isInt && it.lhs.exprinfo.type.dim == 0) {
             it.exprinfo = new Exprinfo(it.lhs.exprinfo);
             it.exprinfo.isLvalue = false;
-        }
-        else
+        } else
             throw new semanticError("only integer can perform INC/DEC operation", it.pos);
     }
 
@@ -357,21 +445,42 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(atomExprNode it) {
-        if (it.str == "this") {
-            if (!inClass)
-                throw new semanticError("this must be in class", it.pos);
-        } else {
-            if (gScope.functions.containsKey(it.str)) {
+        if (it.searchfunc) {
+            if (isinClass && gScope.classes.get(inClass).function.get(it.str) != null) {
+                it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), false, true, true, inClass);
+                it.exprinfo.name = it.str;
+            } else if (gScope.functions.containsKey(it.str)) {
                 it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), false, true, false, "");
                 it.exprinfo.name = it.str;
+            } else
+                throw new semanticError("undefined function", it.pos);
+        } else {
+            if (it.str.equals("this")) {
+                if (!isinClass)
+                    throw new semanticError("this must be in class", it.pos);
+                it.exprinfo = new Exprinfo(it.pos, new Typeinfo(inClass), true, false, true, inClass);
             } else {
-                if (scope.containsVariable(it.str, true)) {
-                    Typeinfo type = scope.getType(it.str, true);
-                    // System.out.printf("get %s type : %s %d\n", it.str, type.type, type.dim);
-                    it.exprinfo = new Exprinfo(it.pos, type, true, false, false, "");
+                if (gScope.functions.containsKey(it.str)) {
+                    it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), false, true, false, "");
+                    it.exprinfo.name = it.str;
                 } else {
-                    if (!gScope.classes.containsKey(it.str))
-                        throw new semanticError("undefined identifier", it.pos);
+                    if (scope.containsVariable(it.str, true)) {
+                        Typeinfo type = scope.getType(it.str, true);
+                        // System.out.printf("get %s type : %s %d\n", it.str, type.type, type.dim);
+                        if (type.isBasic())
+                            it.exprinfo = new Exprinfo(it.pos, type, true, false, false, "");
+                        else
+                            it.exprinfo = new Exprinfo(it.pos, type, true, false, true, type.type);
+                    } else {
+                        if (isinClass && gScope.classes.get(inClass).function.get(it.str) != null) {
+                            it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), false, true, true, inClass);
+                            it.exprinfo.name = it.str;
+                        } else if (gScope.classes.containsKey(it.str)) {
+                            it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), true, false, true, it.str);
+                            it.exprinfo.name = it.str;
+                        } else
+                            throw new semanticError("undefined identifier", it.pos);
+                    }
                 }
             }
         }
@@ -391,20 +500,29 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(funcExprNode it) {
+        it.name.searchfunc = true;
         it.name.accept(this);
         if (!it.name.exprinfo.isFunc)
             throw new semanticError("undefined function", it.pos);
         if (!it.name.exprinfo.isfromclass && !gScope.functions.containsKey(it.name.exprinfo.name))
             throw new semanticError("undefined function", it.pos);
-        Funcinfo f;
+        if (it.name.exprinfo.isfromclass
+                && !gScope.classes.get(it.name.exprinfo.fromclass).function.containsKey(it.name.exprinfo.name))
+            throw new semanticError("undefined function", it.pos);
+        Funcinfo f = null;
         if (!it.name.exprinfo.isfromclass)
             f = gScope.functions.get(it.name.exprinfo.name);
         else
-            f = gScope.classes.get(it.name.exprinfo.type.type).function.get(it.name.exprinfo.name);
+            f = gScope.classes.get(it.name.exprinfo.fromclass).function.get(it.name.exprinfo.name);
         for (int i = 0; i < it.args.size(); i++) {
             it.args.get(i).accept(this);
-            if (!f.argtype.get(i).equal(it.args.get(i).exprinfo.type))
-                throw new semanticError("function arguments type mismatch", it.pos);
+            if (!it.args.get(i).exprinfo.type.isNull) {
+                if (!f.argtype.get(i).equal(it.args.get(i).exprinfo.type))
+                    throw new semanticError("function arguments type mismatch", it.pos);
+            } else {
+                if (f.argtype.get(i).isBasic() && f.argtype.get(i).dim == 0)
+                    throw new semanticError("function arguments type mismatch", it.pos);
+            }
         }
         it.exprinfo = new Exprinfo(it.pos, f.type, false, false, false, "");
     }
@@ -416,9 +534,22 @@ public class SemanticChecker implements ASTVisitor {
             throw new semanticError("condition must be a boolean expression", it.pos);
         it.thenstmt.accept(this);
         it.elsestmt.accept(this);
-        if (!it.thenstmt.exprinfo.type.equal(it.elsestmt.exprinfo.type))
-            throw new semanticError("thenstmt type mismatch elsestmt type", it.pos);
-        it.exprinfo = new Exprinfo(it.thenstmt.exprinfo);
+        if (!it.thenstmt.exprinfo.type.isNull && !it.elsestmt.exprinfo.type.isNull) {
+            if (!it.thenstmt.exprinfo.type.equal(it.elsestmt.exprinfo.type))
+                throw new semanticError("thenstmt type mismatch elsestmt type", it.pos);
+            it.exprinfo = new Exprinfo(it.thenstmt.exprinfo);
+        } else {
+            if ((it.thenstmt.exprinfo.type.isBasic() && it.thenstmt.exprinfo.type.dim == 0)
+                    || (it.elsestmt.exprinfo.type.isBasic() && it.elsestmt.exprinfo.type.dim == 0))
+                throw new semanticError("thenstmt type mismatch elsestmt type", it.pos);
+            if (!it.thenstmt.exprinfo.type.isNull)
+                it.exprinfo = new Exprinfo(it.thenstmt.exprinfo);
+            else if (!it.elsestmt.exprinfo.type.isNull)
+                it.exprinfo = new Exprinfo(it.elsestmt.exprinfo);
+            else
+                it.exprinfo = new Exprinfo(it.pos, new Typeinfo("null"), false, false, false, "");
+        }
+
     }
 
     @Override
@@ -428,7 +559,8 @@ public class SemanticChecker implements ASTVisitor {
             throw new semanticError("condition must be a boolean expression", it.pos);
         Scope s = scope;
         scope = new Scope(s);
-        it.thenStmt.accept(this);
+        if (it.thenStmt != null)
+            it.thenStmt.accept(this);
         scope = new Scope(s);
         if (it.elseStmt != null)
             it.elseStmt.accept(this);
@@ -444,12 +576,14 @@ public class SemanticChecker implements ASTVisitor {
             if (!it.condition.exprinfo.type.isBool || it.condition.exprinfo.type.dim > 0)
                 throw new semanticError("condition must be a boolean expression", it.pos);
         }
-        it.initStmt.accept(this);
+        if (it.initStmt != null)
+            it.initStmt.accept(this);
         if (it.step != null)
             it.step.accept(this);
         scope = new Scope(scope);
         loop += 1;
-        it.bodyStmt.accept(this);
+        if (it.bodyStmt != null)
+            it.bodyStmt.accept(this);
         loop -= 1;
         out();
     }
@@ -460,10 +594,15 @@ public class SemanticChecker implements ASTVisitor {
             throw new semanticError("return statement must be in function", it.pos);
         if (it.value != null) {
             it.value.accept(this);
-            if (!it.value.exprinfo.type.equal(((FuncScope) scope).retType))
-                throw new semanticError("return type mismatch", it.pos);
+            if (retType.isBasic() && retType.dim == 0) {
+                if (!it.value.exprinfo.type.equal(retType))
+                    throw new semanticError("return type mismatch", it.pos);
+            } else {
+                if (!it.value.exprinfo.type.equal(retType) && !it.value.exprinfo.type.isNull)
+                    throw new semanticError("return type mismatch", it.pos);
+            }
         } else {
-            if (((FuncScope) scope).retType.isVoid == false)
+            if (retType.isVoid == false)
                 throw new semanticError("return type mismatch", it.pos);
         }
     }
@@ -499,7 +638,8 @@ public class SemanticChecker implements ASTVisitor {
             throw new semanticError("condition must be a boolean expression", it.pos);
         scope = new Scope(scope);
         loop += 1;
-        it.bodyStmt.accept(this);
+        if (it.bodyStmt != null)
+            it.bodyStmt.accept(this);
         loop -= 1;
         out();
     }
