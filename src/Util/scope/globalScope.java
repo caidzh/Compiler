@@ -24,12 +24,16 @@ public class globalScope extends Scope {
     public void addClass(String name, Classinfo t, position pos){
         if (classes.containsKey(name))
             throw new semanticError("multiple class definition of " + name, pos);
+        if (functions.containsKey(name))
+            throw new semanticError("class " + name + " is same as function", pos);
         classes.put(name,t);
     }
 
     public void addFunction(String name, Funcinfo t, position pos){
         if (functions.containsKey(name))
             throw new semanticError("multiple function definition of " + name, pos);
+        if (classes.containsKey(name))
+            throw new semanticError("function " + name + " is same as class", pos);
         functions.put(name,t);
     }
 

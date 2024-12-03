@@ -11,20 +11,23 @@ public class Typeinfo extends info {
     public Typeinfo(MxParser.TypenameContext ctx) {
         super("", new position(ctx));
         this.dim = ctx.LeftBracket().size();
-        this.type = ctx.type().toString();
+        this.type = ctx.type().getText().toString();
         this.isInt = ctx.type().Int() != null;
         this.isBool = ctx.type().Bool() != null;
         this.isString = ctx.type().String() != null;
+        this.isNull = false;
         this.isVoid = ctx.type().Void() != null;
     }
 
     public Typeinfo(MxParser.TypeContext ctx) {
         super("", new position(ctx));
-        this.type = ctx.toString();
+        this.type = ctx.getText().toString();
         this.isInt = ctx.Int() != null;
         this.isBool = ctx.Bool() != null;
         this.isString = ctx.String() != null;
+        this.isNull = false;
         this.isVoid = ctx.Void() != null;
+        this.dim = 0;
     }
 
     public Typeinfo(String type, position pos) {
@@ -33,7 +36,9 @@ public class Typeinfo extends info {
         this.isInt = (type == "int");
         this.isBool = (type == "bool");
         this.isString = (type == "string");
+        this.isNull = (type == "null");
         this.isVoid = (type == "void");
+        this.dim = 0;
     }
 
     public Typeinfo(String type) {
@@ -42,7 +47,9 @@ public class Typeinfo extends info {
         this.isInt = (type == "int");
         this.isBool = (type == "bool");
         this.isString = (type == "string");
+        this.isNull = (type == "null");
         this.isVoid = (type == "void");
+        this.dim = 0;
     }
 
     public Typeinfo(Typeinfo rhs) {
@@ -57,11 +64,11 @@ public class Typeinfo extends info {
     }
 
     public boolean equal(Typeinfo rhs) {
-        return rhs.type == type && rhs.dim == dim;
+        return rhs.type.equals(type) && rhs.dim == dim;
     }
 
     public boolean typeEqual(Typeinfo rhs) {
-        return rhs.type == type;
+        return rhs.type.equals(type);
     }
 
     public boolean isBasic() {

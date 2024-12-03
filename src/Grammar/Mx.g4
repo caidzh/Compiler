@@ -2,7 +2,7 @@ grammar Mx;
 
 @header {package Grammar;}
 
-program : (classDef | varDef | funcDef)* EOF;
+program : (classDef | varDef ';' | funcDef)* EOF;
 
 expressionlist : expression (',' expression)*;
 
@@ -10,7 +10,7 @@ funcDef : typename name=Identifier '(' arglist? ')' body=suite;
 arglist : arg (',' arg)*;
 arg : typename argvar;
 argvar : name=Identifier ('=' expression)?;
-varDef : typename argvar (',' argvar)*? ';';
+varDef : typename argvar (',' argvar)*?;
 array : '[' expression? ']'; 
 arrayinitial : '{' expressionlist? '}';
 typename : type ('[' ']')*?;
@@ -24,7 +24,7 @@ expression
     | New type array+ arrayinitial? # NewArrayExpr
     | New type ('(' ')')? #NewVarExpr
     | expression Dot Identifier # MemberExpr
-    | expression '(' expressionlist ')' # FuncExpr
+    | expression '(' expressionlist? ')' # FuncExpr
     | lhs=expression op=(Inc | Dec) # RightExpr
     | <assoc = right> op=(Inc | Dec) rhs=expression  # LeftExpr
     | <assoc = right> op=(Not | BitNot | Sub) rhs=expression # LeftExpr
@@ -47,17 +47,17 @@ expression
     | This # AtomExpr
     ;
 
-classDef : Class Identifier '{' (varDef | funcDef | classConstruct)* '}' ';';
+classDef : Class Identifier '{' (varDef ';'| funcDef | classConstruct)* '}' ';';
 classConstruct : name=Identifier '(' ')' body=suite;
 
 suite : '{' statement* '}';
 
 statement
     : suite # suiteStmt
-    | varDef # varDefStmt
     | If '(' cond=expression ')' thenstmt=statement (Else elsestmt=statement)? # ifStmt
     | Return expression? ';' # returnStmt
     | expression ';' # pureExprStmt
+    | varDef ';' #varDefStmt
     | ';' # emptyStmt
     | For '(' init=statement cond=statement step=expression? ')' body=statement # forStmt
     | While '(' cond=expression ')' body=statement # whileStmt

@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import AST.ASTVisitor;
 import AST.StmtNode.suiteStmtNode;
 
-public class funcDefNode extends DefNode{
+public class funcDefNode extends DefNode {
     public String name;
     public ArrayList<varDefsNode> args = new ArrayList<>();
     public Typeinfo type;
-    public suiteStmtNode body = null;
-    
-    public funcDefNode(position pos, String name, Typeinfo type){
+    public suiteStmtNode body;
+
+    public funcDefNode(position pos, String name, Typeinfo type) {
         super(pos);
-        this.name=name;
-        this.type=type;
+        this.name = name;
+        this.type = new Typeinfo(type);
     }
 
-    public int paramnumber(){
+    public int paramnumber() {
         return args.size();
     }
 

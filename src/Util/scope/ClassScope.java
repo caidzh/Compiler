@@ -9,9 +9,14 @@ public class ClassScope extends Scope {
     public Classinfo Class;
     public HashMap<String, Funcinfo> Func=new HashMap<>();
 
-    public ClassScope(Scope parentScope) {
-        super(parentScope);
+    public ClassScope(Scope parenScope) {
+        super(parenScope);
     }
+
+    public ClassScope(ClassScope parenScope) {
+        super(parenScope);
+    }
+
     public ClassScope(){
         super(null);
     }

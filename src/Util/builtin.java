@@ -18,5 +18,12 @@ public class builtin {
     static public Funcinfo getInt = new Funcinfo("getInt", IntType);
     static public Funcinfo toString = new Funcinfo("toString", StringType, IntType);
 
-    static public Funcinfo func[] = {print, println, printInt, printlnInt, getString, getInt, toString};
+    static public Funcinfo size = new Funcinfo("size", IntType);
+
+    static public Funcinfo length = new Funcinfo("length", IntType);
+    static public Funcinfo substring = new Funcinfo("substring", StringType, IntType, IntType);
+    static public Funcinfo parseInt = new Funcinfo("parseInt", IntType);
+    static public Funcinfo ord = new Funcinfo("ord", IntType, IntType);
+
+    static public Funcinfo func[] = {print, println, printInt, printlnInt, getString, getInt, toString, size, length, substring, parseInt, ord};
 }

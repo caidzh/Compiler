@@ -7,6 +7,11 @@ public class FuncScope extends Scope {
 
     public FuncScope(Scope parenScope, Typeinfo type) {
         super(parenScope);
-        retType = type;
+        retType = new Typeinfo(type);
+    }
+
+    public FuncScope(FuncScope parenScope){
+        super(parenScope);
+        retType = new Typeinfo(parenScope.retType);
     }
 }

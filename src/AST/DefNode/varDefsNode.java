@@ -13,8 +13,8 @@ public class varDefsNode extends DefNode{
     
     public varDefsNode(Typeinfo type,ArrayList<varDefNode> Defs,position pos){
         super(pos);
-        this.type=type;
-        this.Defs=Defs;
+        this.type = new Typeinfo(type);
+        this.Defs = new ArrayList<varDefNode>(Defs);
     }
 
     @Override

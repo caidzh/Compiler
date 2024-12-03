@@ -16,7 +16,7 @@ public class SymbolCollector implements ASTVisitor {
         for (Funcinfo func : builtin.func)
             this.gScope.addFunction(func.name, func, null);
         for (Typeinfo base : builtin.basetype)
-            this.gScope.addClass(base.name, new Classinfo(base), null);;
+            this.gScope.addClass(base.type, new Classinfo(base), null);;
     }
 
     @Override public void visit(RootNode it){
@@ -35,8 +35,8 @@ public class SymbolCollector implements ASTVisitor {
     }
 
     @Override public void visit(varDefsNode it){
-        for (varDefNode vardef : it.Defs)
-            this.gScope.defineVariable(vardef.name, it.type, vardef.pos);
+        // for (varDefNode vardef : it.Defs)
+        //     this.gScope.defineVariable(vardef.name, it.type, vardef.pos);
     }
 
     @Override public void visit(varDefNode it){}
@@ -67,4 +67,5 @@ public class SymbolCollector implements ASTVisitor {
     @Override public void visit(whileStmtNode it){}
     @Override public void visit(jumpStmtNode it){}
     @Override public void visit(exprStmtNode it){}
+    @Override public void visit(varDefStmtNode it){}
 }

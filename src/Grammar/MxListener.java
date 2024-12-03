@@ -372,18 +372,6 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitSuiteStmt(MxParser.SuiteStmtContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code varDefStmt}
-	 * labeled alternative in {@link MxParser#statement}.
-	 * @param ctx the parse tree
-	 */
-	void enterVarDefStmt(MxParser.VarDefStmtContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code varDefStmt}
-	 * labeled alternative in {@link MxParser#statement}.
-	 * @param ctx the parse tree
-	 */
-	void exitVarDefStmt(MxParser.VarDefStmtContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code ifStmt}
 	 * labeled alternative in {@link MxParser#statement}.
 	 * @param ctx the parse tree
@@ -419,6 +407,18 @@ public interface MxListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPureExprStmt(MxParser.PureExprStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code varDefStmt}
+	 * labeled alternative in {@link MxParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterVarDefStmt(MxParser.VarDefStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code varDefStmt}
+	 * labeled alternative in {@link MxParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitVarDefStmt(MxParser.VarDefStmtContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code emptyStmt}
 	 * labeled alternative in {@link MxParser#statement}.

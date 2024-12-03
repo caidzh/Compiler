@@ -24,6 +24,7 @@ public class Scope {
     }
 
     public void defineVariable(String name, Typeinfo t, position pos) {
+        // System.out.printf("%s\n",name);
         if (members.containsKey(name))
             throw new semanticError("Semantic Error: variable redefine", pos);
         members.put(name, t);

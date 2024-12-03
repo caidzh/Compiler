@@ -6,17 +6,19 @@ public class Exprinfo extends Typeinfo {
     public Typeinfo type;
     public boolean isLvalue = false;
     public boolean isFunc = false;
+    public boolean isfromclass = false;
+    public String fromclass;
 
-    public Exprinfo(position pos, Typeinfo type, boolean isLvalue, boolean isFunc) {
+    public Exprinfo(position pos, Typeinfo type, boolean isLvalue, boolean isFunc, boolean isfromclass, String fromclass) {
         super(type.name, pos);
-        this.type = type;
+        this.type = new Typeinfo(type);
         this.isLvalue = isLvalue;
         this.isFunc = isFunc;
     }
 
     public Exprinfo(Exprinfo rhs) {
         super(rhs.name, rhs.pos);
-        this.type = rhs.type;
+        this.type = new Typeinfo(rhs.type);
         this.isLvalue = rhs.isLvalue;
         this.isFunc = rhs.isFunc;
     }

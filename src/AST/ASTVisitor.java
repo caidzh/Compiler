@@ -38,4 +38,5 @@ public interface ASTVisitor {
     void visit(whileStmtNode it);
     void visit(jumpStmtNode it);
     void visit(exprStmtNode it);
+    void visit(varDefStmtNode it);
 }

@@ -226,13 +226,6 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSuiteStmt(MxParser.SuiteStmtContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code varDefStmt}
-	 * labeled alternative in {@link MxParser#statement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVarDefStmt(MxParser.VarDefStmtContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code ifStmt}
 	 * labeled alternative in {@link MxParser#statement}.
 	 * @param ctx the parse tree
@@ -253,6 +246,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPureExprStmt(MxParser.PureExprStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code varDefStmt}
+	 * labeled alternative in {@link MxParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarDefStmt(MxParser.VarDefStmtContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code emptyStmt}
 	 * labeled alternative in {@link MxParser#statement}.
