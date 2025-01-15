@@ -460,26 +460,36 @@ public class SemanticChecker implements ASTVisitor {
                     throw new semanticError("this must be in class", it.pos);
                 it.exprinfo = new Exprinfo(it.pos, new Typeinfo(inClass), true, false, true, inClass);
             } else {
-                if (gScope.functions.containsKey(it.str)) {
-                    it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), false, true, false, "");
-                    it.exprinfo.name = it.str;
+                if (it.str.equals("size")&&scope.containsVariable("size", true)) {
+                    Typeinfo type = scope.getType(it.str, true);
+                    // System.out.printf("get %s type : %s %d\n", it.str, type.type, type.dim);
+                    if (type.isBasic())
+                        it.exprinfo = new Exprinfo(it.pos, type, true, false, false, "");
+                    else
+                        it.exprinfo = new Exprinfo(it.pos, type, true, false, true, type.type);
                 } else {
-                    if (scope.containsVariable(it.str, true)) {
-                        Typeinfo type = scope.getType(it.str, true);
-                        // System.out.printf("get %s type : %s %d\n", it.str, type.type, type.dim);
-                        if (type.isBasic())
-                            it.exprinfo = new Exprinfo(it.pos, type, true, false, false, "");
-                        else
-                            it.exprinfo = new Exprinfo(it.pos, type, true, false, true, type.type);
+                    if (gScope.functions.containsKey(it.str)) {
+                        System.out.printf("%s\n",it.str);
+                        it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), false, true, false, "");
+                        it.exprinfo.name = it.str;
                     } else {
-                        if (isinClass && gScope.classes.get(inClass).function.get(it.str) != null) {
-                            it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), false, true, true, inClass);
-                            it.exprinfo.name = it.str;
-                        } else if (gScope.classes.containsKey(it.str)) {
-                            it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), true, false, true, it.str);
-                            it.exprinfo.name = it.str;
-                        } else
-                            throw new semanticError("undefined identifier", it.pos);
+                        if (scope.containsVariable(it.str, true)) {
+                            Typeinfo type = scope.getType(it.str, true);
+                            // System.out.printf("get %s type : %s %d\n", it.str, type.type, type.dim);
+                            if (type.isBasic())
+                                it.exprinfo = new Exprinfo(it.pos, type, true, false, false, "");
+                            else
+                                it.exprinfo = new Exprinfo(it.pos, type, true, false, true, type.type);
+                        } else {
+                            if (isinClass && gScope.classes.get(inClass).function.get(it.str) != null) {
+                                it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), false, true, true, inClass);
+                                it.exprinfo.name = it.str;
+                            } else if (gScope.classes.containsKey(it.str)) {
+                                it.exprinfo = new Exprinfo(it.pos, new Typeinfo(""), true, false, true, it.str);
+                                it.exprinfo.name = it.str;
+                            } else
+                                throw new semanticError("undefined identifier", it.pos);
+                        }
                     }
                 }
             }
