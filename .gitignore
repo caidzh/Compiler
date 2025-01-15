@@ -41,3 +41,5 @@ test.mx
 # 忽略临时文件
 *.tmp
 *.log
+
+local_makefile

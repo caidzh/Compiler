@@ -298,15 +298,17 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitFormatStringExpr(MxParser.FormatStringExprContext ctx) {
         formatstringExprNode fstr = new formatstringExprNode(new position(ctx));
         if (ctx.formstr().FormatString() != null)
-            fstr.str.add(ctx.formstr().FormatString().toString());
+            fstr.str.add(ctx.formstr().FormatString().getText());
         else {
-            fstr.str.add(ctx.formstr().FormatStringL().toString());
+            fstr.str.add(ctx.formstr().FormatStringL().getText());
             fstr.expr.add((ExprNode) visit(ctx.formstr().expression(0)));
             if (ctx.formstr().FormatStringM() != null) {
-                fstr.str.add(ctx.formstr().FormatStringM().toString());
-                fstr.expr.add((ExprNode) visit(ctx.formstr().expression(1)));
+                for (int i=0;i<ctx.formstr().FormatStringM().size();i++){
+                    fstr.str.add(ctx.formstr().FormatStringM(i).getText());
+                    fstr.expr.add((ExprNode) visit(ctx.formstr().expression(i+1)));
+                }
             }
-            fstr.str.add(ctx.formstr().FormatStringR().toString());
+            fstr.str.add(ctx.formstr().FormatStringR().getText());
         }
         return fstr;
     }

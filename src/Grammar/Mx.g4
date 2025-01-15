@@ -16,7 +16,7 @@ arrayinitial : '{' expressionlist? '}';
 typename : type ('[' ']')*?;
 type : Identifier | Bool | Int | String | Void;
 literal : False | True | Null | ConstString | DecimalInteger;
-formstr : FormatString | (FormatStringL expression (FormatStringM expression)? FormatStringR);
+formstr : FormatString | (FormatStringL expression (FormatStringM expression)* FormatStringR);
 
 expression
     : '(' expression ')' # ParenExpr
@@ -143,16 +143,16 @@ ConstString
     ;
 
 FormatString
-    : 'f"'  FormatStringCharacter*? '"';
+    : 'f"'  (FormatStringCharacter)*? '"';
 
 FormatStringL
-    : 'f"' FormatStringCharacter*? '$';
+    : 'f"' (FormatStringCharacter)* '$';
 
 FormatStringM
-    : '$' FormatStringCharacter*? '$';
+    : '$' (FormatStringCharacter)* '$';
 
 FormatStringR
-    : '$' FormatStringCharacter*? '"';
+    : '$' (FormatStringCharacter)* '"';
 
 Whitespace
     :   (   ' '

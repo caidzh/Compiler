@@ -15,16 +15,16 @@ import java.io.InputStream;
 public class main {
 
     public static void main(String[] args) throws Exception{
-        // var input = CharStreams.fromStream(System.in);
-        String name = "test.mx";
-        InputStream input = new FileInputStream(name);
+        var input = CharStreams.fromStream(System.in);
+        // String name = "test.mx";
+        // InputStream input = new FileInputStream(name);
 
         try {
             RootNode ASTRoot;
             globalScope gScope = new globalScope(null);
 
-            MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
-            // MxLexer lexer = new MxLexer(input);
+            // MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
+            MxLexer lexer = new MxLexer(input);
 
             lexer.removeErrorListeners();
             lexer.addErrorListener(new MxErrorListener());

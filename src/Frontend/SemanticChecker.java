@@ -155,11 +155,11 @@ public class SemanticChecker implements ASTVisitor {
         it.lhs.accept(this);
         it.rhs.accept(this);
         it.exprinfo = new Exprinfo(it.pos, new Typeinfo("bool"), false, false, false, "");
-        if (it.opCode == binaryCmpType.Eq || it.opCode == binaryCmpType.Neq) {
+        if (it.opCode.equals(binaryCmpType.Eq) || it.opCode.equals(binaryCmpType.Neq)) {
             if (it.lhs.exprinfo.type.dim > 0 || it.rhs.exprinfo.type.dim > 0) {
-                if (it.lhs.exprinfo.type.dim > 0 && it.rhs.exprinfo.type.dim == 0 && !it.rhs.exprinfo.isNull)
+                if (it.lhs.exprinfo.type.dim > 0 && it.rhs.exprinfo.type.dim == 0 && !it.rhs.exprinfo.type.isNull)
                     throw new semanticError("binary compare error", it.pos);
-                if (it.lhs.exprinfo.type.dim == 0 && !it.lhs.exprinfo.isNull && it.rhs.exprinfo.type.dim > 0)
+                if (it.lhs.exprinfo.type.dim == 0 && !it.lhs.exprinfo.type.isNull && it.rhs.exprinfo.type.dim > 0)
                     throw new semanticError("binary compare error", it.pos);
             } else {
                 if (!it.lhs.exprinfo.type.isNull && !it.rhs.exprinfo.type.isNull) {
@@ -427,19 +427,19 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(literalExprNode it) {
         if (it instanceof intExprNode) {
             it.exprinfo = new Exprinfo(it.pos, new Typeinfo("int"), false, false, false, "");
-            it.exprinfo.isInt = true;
+            it.exprinfo.type.isInt = true;
         }
         if (it instanceof boolExprNode) {
             it.exprinfo = new Exprinfo(it.pos, new Typeinfo("bool"), false, false, false, "");
-            it.exprinfo.isBool = true;
+            it.exprinfo.type.isBool = true;
         }
         if (it instanceof nullExprNode) {
             it.exprinfo = new Exprinfo(it.pos, new Typeinfo("null"), false, false, false, "");
-            it.exprinfo.isNull = true;
+            it.exprinfo.type.isNull = true;
         }
         if (it instanceof conststrExprNode) {
             it.exprinfo = new Exprinfo(it.pos, new Typeinfo("string"), false, false, false, "");
-            it.exprinfo.isString = true;
+            it.exprinfo.type.isString = true;
         }
     }
 
@@ -492,10 +492,10 @@ public class SemanticChecker implements ASTVisitor {
             cd.accept(this);
             if (cd.exprinfo.dim > 0)
                 throw new semanticError("format string can not contain array", it.pos);
-            if (!(cd.exprinfo.isBool || cd.exprinfo.isInt || cd.exprinfo.isString))
+            if (!(cd.exprinfo.type.isBool || cd.exprinfo.type.isInt || cd.exprinfo.type.isString))
                 throw new semanticError("format string only contains bool/int/string", it.pos);
         }
-        it.exprinfo.isString = true;
+        it.exprinfo = new Exprinfo(it.pos, new Typeinfo("string"), false, false, false, "");
     }
 
     @Override
