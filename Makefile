@@ -1,16 +1,16 @@
-JAVA_RUN_OPTS=-ea -Xss10m -cp /usr/share/java/antlr-4.13.1-complete.jar:bin
+JAVA_RUN_OPTS=-ea -Xss10m -cp /ulib/antlr-4.13.1-complete.jar:bin
 
 .PHONY: build
 build:
 	find src -name ".antlr" -exec rm -r {} \; &&\
-	find src -name '*.java' | xargs javac -d bin -cp /usr/share/java/antlr-4.13.1-complete.jar
+	find src -name '*.java' | xargs javac -d bin -cp /ulib/antlr-4.13.1-complete.jar
 .PHONY: run
 run: 
-	cd bin && java -cp /usr/share/java/antlr-4.13.1-complete.jar:. main
+	cd bin && java -cp /ulib/antlr-4.13.1-complete.jar:. main
 
 .PHONY: genantlr
 genantlr:
-	java -jar /usr/share/java/antlr-4.13.1-complete.jar -visitor ./src/Grammar/Mx.g4
+	java -jar /ulib/antlr-4.13.1-complete.jar -visitor ./src/Grammar/Mx.g4
 
 .PHONY: Sema
 Sema: build
